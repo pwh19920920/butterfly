@@ -1,0 +1,90 @@
+package server
+
+import (
+	"context"
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+)
+
+func StartHttpServer() {
+	// 初始化引擎
+	engine := initEngine()
+
+	// 初始化srv
+	srv := &http.Server{
+		Addr:    getConf().ServerAddr,
+		Handler: engine,
+	}
+
+	// 服务启动
+	go func() {
+		// service connections
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logrus.WithFields(logrus.Fields{"error": err}).Fatal("服务启动监听失败")
+		}
+	}()
+
+	// 优雅关机
+	gracefulShutdown(srv)
+}
+
+// 初始化引擎
+func initEngine() *gin.Engine {
+	// 设置启动模式
+	gin.SetMode(getConf().EngineMode)
+
+	// 启动
+	engine := gin.New()
+	engine.Use(gin.Recovery())
+
+	// 初始化静态资源，页面
+	initLoadHTMLGlob(engine)
+	initStatic(engine)
+	return engine
+}
+
+// 加载页面
+func initLoadHTMLGlob(engine *gin.Engine) {
+	loadHTMLGlobs := conf.Server.HtmlGlobs
+	if loadHTMLGlobs == nil {
+		return
+	}
+	for _, item := range loadHTMLGlobs {
+		engine.LoadHTMLGlob(item)
+	}
+}
+
+// 静态配置
+func initStatic(engine *gin.Engine) {
+	statics := conf.Server.Statics
+	if statics == nil {
+		return
+	}
+
+	for key, val := range statics {
+		engine.Static(key, val)
+	}
+}
+
+// 优雅关机, 让服务器停个5s
+func gracefulShutdown(srv *http.Server) {
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	logrus.Info("服务开始优雅关闭 -- 开始")
+
+	// 服务暂停5s
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		logrus.WithFields(logrus.Fields{"error": err}).Fatal("服务优雅关闭失败")
+		return
+	}
+
+	logrus.Info("服务开始优雅关闭 -- 结束")
+}
