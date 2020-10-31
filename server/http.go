@@ -42,10 +42,28 @@ func initEngine() *gin.Engine {
 	engine := gin.New()
 	engine.Use(gin.Recovery())
 
+	// 加载路由信息
+	initRoute(engine)
+
 	// 初始化静态资源，页面
 	initLoadHTMLGlob(engine)
 	initStatic(engine)
 	return engine
+}
+
+// 初始化路由
+func initRoute(engine *gin.Engine) {
+	for _, routeGroup := range routeGroups {
+		for _, routeInfo := range routeGroup.RouteInfos {
+			engine.Handle(routeInfo.HttpMethod.String(), routeGroup.BasePath+routeInfo.Path, routeInfo.HandlerFunc)
+		}
+	}
+
+	// 404 页面处理器
+	if routeFor404 != nil {
+		engine.NoMethod(routeFor404)
+		engine.NoRoute(routeFor404)
+	}
 }
 
 // 加载页面
