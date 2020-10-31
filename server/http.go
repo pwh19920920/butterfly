@@ -40,7 +40,11 @@ func initEngine() *gin.Engine {
 
 	// 启动
 	engine := gin.New()
-	engine.Use(gin.Recovery())
+
+	// 注册中间价
+	if middlewareList != nil {
+		engine.Use(middlewareList...)
+	}
 
 	// 加载路由信息
 	initRoute(engine)

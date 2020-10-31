@@ -1,6 +1,9 @@
 package server
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/pwh19920920/butterfly/response"
+)
 
 type HttpMethod struct {
 	Method string
@@ -11,8 +14,14 @@ var HttpPost = HttpMethod{"POST"}
 var HttpPut = HttpMethod{"PUT"}
 var HttpDelete = HttpMethod{"DELETE"}
 
-var routeGroups = make([]RouteGroup, 1000)
-var routeFor404 gin.HandlerFunc
+var routeGroups = make([]RouteGroup, 0)
+var routeFor404 gin.HandlerFunc = func(context *gin.Context) {
+	response.Response(context, 404, "page or method not found", nil)
+}
+
+var routeFor500 gin.HandlerFunc = func(context *gin.Context) {
+	response.Response(context, 500, "occurrence of system anomaly", nil)
+}
 
 type RouteGroup struct {
 	BasePath   string
@@ -33,6 +42,10 @@ func RegisterRoute(basePath string, routeInfos []RouteInfo) {
 	routeGroups = append(routeGroups, RouteGroup{basePath, routeInfos})
 }
 
-func Register404Handler(handlerFunc gin.HandlerFunc) {
+func Register404Route(handlerFunc gin.HandlerFunc) {
 	routeFor404 = handlerFunc
+}
+
+func Register500Route(handlerFunc gin.HandlerFunc) {
+	routeFor500 = handlerFunc
 }
