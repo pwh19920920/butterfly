@@ -21,6 +21,9 @@ func StartHttpServer() {
 		Handler: engine,
 	}
 
+	// log info
+	logrus.Infof("server start for address '%s', running in engineMode '%s'", getConf().ServerAddr, getConf().EngineMode)
+
 	// 服务启动
 	go func() {
 		// service connections
