@@ -5,25 +5,26 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"path/filepath"
 	"reflect"
 )
 
 const defaultConfigPath string = "src/resources/application.yml"
 
 type LoggerConfig struct {
-	Level           string
-	LogPath         string
-	FileName        string
-	DateFormat      string
-	CloseConsoleOut bool
+	Level           string `yaml:"level"`
+	LogPath         string `yaml:"logPath"`
+	FileName        string `yaml:"fileName"`
+	DateFormat      string `yaml:"dateFormat"`
+	CloseConsoleOut bool   `yaml:"closeConsoleOut"`
 }
 
 type ServerConfig struct {
-	EngineMode  string
-	ServerAddr  string
-	ServiceName string
-	HtmlGlobs   []string
-	Statics     map[string]string
+	EngineMode  string            `yaml:"engineMode"`
+	ServerAddr  string            `yaml:"serverAddr"`
+	ServiceName string            `yaml:"serviceName"`
+	HtmlGlobs   []string          `yaml:"htmlGlobs"`
+	Statics     map[string]string `yaml:"statics"`
 }
 
 func LoadConf(conf interface{}, configFilePath string) {
