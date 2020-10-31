@@ -62,6 +62,7 @@ func initEngine() *gin.Engine {
 func initRoute(engine *gin.Engine) {
 	for _, routeGroup := range routeGroups {
 		for _, routeInfo := range routeGroup.RouteInfos {
+			logrus.Infof("http mvc register, method:%s, uri:%s", routeInfo.HttpMethod.String(), routeGroup.BasePath+routeInfo.Path)
 			engine.Handle(routeInfo.HttpMethod.String(), routeGroup.BasePath+routeInfo.Path, routeInfo.HandlerFunc)
 		}
 	}
@@ -92,6 +93,7 @@ func initStatic(engine *gin.Engine) {
 	}
 
 	for key, val := range statics {
+		logrus.Infof("http static register, relativePath:%s", key)
 		engine.Static(key, val)
 	}
 }
