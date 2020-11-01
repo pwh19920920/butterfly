@@ -91,7 +91,7 @@ func init() {
 
 # Config
 #### 1. 命令参数
-1. --configFilePath: 外部配置文件地址
+1. --configFilePath: 外部配置文件地址，默认为：src/resources/application.yml
 2. --engineMode: 引擎模式：debug，release，test
 3. --serverAddr: 启动地址：格式为ip地址:端口, 地址无限制则为:端口
 
