@@ -22,7 +22,7 @@ func StartHttpServer() {
 	}
 
 	// log info
-	logrus.Infof("server start for address '%s', running in engineMode '%s'", getConf().ServerAddr, getConf().EngineMode)
+	logrus.Infof("server %s start for address '%s', running in engineMode '%s'", getConf().ServiceName, getConf().ServerAddr, getConf().EngineMode)
 
 	// 服务启动
 	go func() {

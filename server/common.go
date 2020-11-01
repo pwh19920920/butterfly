@@ -4,6 +4,7 @@ import "github.com/pwh19920920/butterfly/config"
 
 const defaultEngineMode = "debug"
 const defaultServerAddr = ":8080"
+const defaultServerName = "butterfly"
 
 type Conf struct {
 	Server config.ServerConfig `yaml:"server"`
@@ -32,6 +33,10 @@ func load() *Conf {
 
 	if conf.Server.ServerAddr == "" {
 		conf.Server.ServerAddr = defaultServerAddr
+	}
+
+	if conf.Server.ServiceName == "" {
+		conf.Server.ServiceName = defaultServerName
 	}
 
 	return conf
