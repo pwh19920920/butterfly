@@ -1,7 +1,6 @@
 # butterfly 快速开发框架
 
 butterfly是一套简单易用的Go语言业务框架，整体逻辑设计简洁，支持HTTP服务、任务调度等常用业务场景模式。
-
 # Features
 1. HTTP服务：基于gin进行模块化设计，简单易用、核心足够轻量；
 2. Config: 采用yaml语义化的配置文件格式，简单易用；
@@ -57,6 +56,8 @@ func init() {
     server.RegisterRoute("/test", route)
 }
 ```
+
+基本的demo可以参考: [https://github.com/pwh19920920/butterfly-demo](https://github.com/pwh19920920/butterfly-demo)
 
 # Advance
 #### 1. 注册404，500事件路由
