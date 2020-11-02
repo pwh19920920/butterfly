@@ -13,9 +13,10 @@ butterfly是一套简单易用的Go语言业务框架，整体逻辑设计简洁
 #### 1. 基本框架
 
 ```
+package main
+
 import "github.com/pwh19920920/butterfly"
 
-package main
 func main() {
     butterfly.Run()
 }
