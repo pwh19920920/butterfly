@@ -37,13 +37,14 @@ func LoadConf(conf interface{}, configFilePath string) {
 	viper.SetConfigName(configName)
 	viper.SetConfigType(configType)
 	viper.AddConfigPath(configPath)
+
+	// 加载配置
 	err = viper.ReadInConfig()
 	if err != nil {
 		logrus.Warn("Loading", reflect.TypeOf(conf), "配置文件加载失败")
-		return
 	}
 
-	// 反序列化
+	// 反序列化，配置文件加载不到也要反序列化，可能会有默认配置
 	err = viper.Unmarshal(conf)
 	if err != nil {
 		logrus.Warn("Loading", reflect.TypeOf(conf), "配置文件序列化失败")
