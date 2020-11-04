@@ -1,14 +1,13 @@
 package config
 
 import (
+	"errors"
 	"github.com/pwh19920920/butterfly/helper"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
+	"github.com/spf13/viper"
 	"reflect"
+	"strings"
 )
-
-const defaultConfigPath string = "src/resources/application.yml"
 
 type LoggerConfig struct {
 	Level           string `yaml:"level"`
@@ -27,28 +26,45 @@ type ServerConfig struct {
 }
 
 func LoadConf(conf interface{}, configFilePath string) {
-	if configFilePath == "" {
-		configFilePath = defaultConfigPath
-	}
-
-	// 检查文件
-	exists, err := helper.FileHelper.PathExists(configFilePath)
-	if err != nil || !exists {
-		logrus.Warn("Loading", reflect.TypeOf(conf), "配置文件不存在")
+	// 配置读取
+	configPath, configName, configType, err := splitViperConfig(configFilePath)
+	if err != nil {
+		logrus.Warn("Loading", reflect.TypeOf(conf), "配置文件不正确")
 		return
 	}
 
-	// 加载文件
-	configFile, err := ioutil.ReadFile(configFilePath)
+	// 设置viper配置
+	viper.SetConfigName(configName)
+	viper.SetConfigType(configType)
+	viper.AddConfigPath(configPath)
+	err = viper.ReadInConfig()
 	if err != nil {
 		logrus.Warn("Loading", reflect.TypeOf(conf), "配置文件加载失败")
 		return
 	}
 
-	// 序列化
-	err = yaml.Unmarshal(configFile, conf)
+	// 反序列化
+	err = viper.Unmarshal(conf)
 	if err != nil {
-		logrus.Warn("Loading", reflect.TypeOf(conf), "配置文件加载失败")
+		logrus.Warn("Loading", reflect.TypeOf(conf), "配置文件序列化失败")
 		return
 	}
+}
+
+// 切割文件
+func splitViperConfig(configFilePath string) (configPath string, configName string, configType string, e error) {
+	lastIndexDirectory := strings.LastIndex(configFilePath, "/")
+	lastIndexDot := strings.LastIndex(configFilePath, ".")
+	if lastIndexDot == -1 {
+		return "", "", "", errors.New("fileType is error")
+	}
+
+	configPath = "."
+	if lastIndexDirectory != -1 {
+		configPath = helper.StringHelper.SubString(configFilePath, 0, lastIndexDirectory)
+	}
+
+	configName = helper.StringHelper.SubString(configFilePath, lastIndexDirectory+1, lastIndexDot)
+	configType = helper.StringHelper.SubString(configFilePath, lastIndexDot+1, len(configFilePath))
+	return configPath, configName, configType, nil
 }

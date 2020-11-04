@@ -11,7 +11,6 @@ import (
 	"time"
 )
 
-const defaultLoggerDateFormat string = "2006-01-02 15:04:05.999999999"
 const infoLog string = "INFO"
 const warnLog string = "WARN"
 const errorLog string = "ERROR"
@@ -22,9 +21,6 @@ func initLogger(conf config.LoggerConfig) {
 
 	// 日期格式化
 	format := conf.DateFormat
-	if format == "" {
-		format = defaultLoggerDateFormat
-	}
 
 	// 创建扩展，日志切割
 	hook := newLfsHook(conf.LogPath, conf.FileName, format)

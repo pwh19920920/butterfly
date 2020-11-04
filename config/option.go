@@ -1,23 +1,27 @@
 package config
 
 import (
-	"flag"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 var options *Options
 
+const defaultConfigPath string = "app/resources/application.yml"
+
 type Options struct {
 	ConfigFilePath string
-	EngineMode     string
-	ServerAddr     string
 }
 
 func parseOptions() *Options {
 	opts := new(Options)
-	flag.StringVar(&opts.ConfigFilePath, "configFilePath", "", "配置文件地址")
-	flag.StringVar(&opts.EngineMode, "engineMode", "", "引擎模式：debug，release，test")
-	flag.StringVar(&opts.ServerAddr, "serverAddr", "", "启动地址：格式为ip地址:端口, 地址无限制则为:端口")
-	flag.Parse()
+	pflag.StringVar(&opts.ConfigFilePath, "configFilePath", defaultConfigPath, "配置文件地址")
+	pflag.String("server.engineMode", "", "引擎模式：debug，release，test")
+	pflag.String("server.serverAddr", "", "启动地址：格式为ip地址:端口, 地址无限制则为:端口")
+	pflag.Parse()
+
+	// 绑定到viper上
+	_ = viper.BindPFlags(pflag.CommandLine)
 	return opts
 }
 
