@@ -23,6 +23,10 @@ var routeFor500 gin.HandlerFunc = func(context *gin.Context) {
 	response.Response(context, 500, "occurrence of system anomaly", nil)
 }
 
+var routeFor403 gin.HandlerFunc = func(context *gin.Context) {
+	response.Response(context, 403, "sorry, you don't have permission for this path", nil)
+}
+
 type RouteGroup struct {
 	BasePath   string
 	RouteInfos []RouteInfo
@@ -42,10 +46,18 @@ func RegisterRoute(basePath string, routeInfos []RouteInfo) {
 	routeGroups = append(routeGroups, RouteGroup{basePath, routeInfos})
 }
 
+func RegisterRouteGroup(routeGroup RouteGroup) {
+	routeGroups = append(routeGroups, routeGroup)
+}
+
 func Register404Route(handlerFunc gin.HandlerFunc) {
 	routeFor404 = handlerFunc
 }
 
 func Register500Route(handlerFunc gin.HandlerFunc) {
 	routeFor500 = handlerFunc
+}
+
+func Register403Route(handlerFunc gin.HandlerFunc) {
+	routeFor403 = handlerFunc
 }
