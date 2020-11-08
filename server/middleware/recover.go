@@ -19,6 +19,7 @@ func Recover(recoverHandler gin.HandlerFunc) gin.HandlerFunc {
 
 				logrus.Error(DebugStack)
 				recoverHandler(context)
+				return
 			}
 		}()
 

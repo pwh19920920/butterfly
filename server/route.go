@@ -27,6 +27,10 @@ var routeFor403 gin.HandlerFunc = func(context *gin.Context) {
 	response.Response(context, 403, "sorry, you don't have permission for this path", nil)
 }
 
+var routeFor401 gin.HandlerFunc = func(context *gin.Context) {
+	response.Response(context, 401, "sorry, you need login for the option", nil)
+}
+
 type RouteGroup struct {
 	BasePath   string
 	RouteInfos []RouteInfo
@@ -60,4 +64,8 @@ func Register500Route(handlerFunc gin.HandlerFunc) {
 
 func Register403Route(handlerFunc gin.HandlerFunc) {
 	routeFor403 = handlerFunc
+}
+
+func Register401Route(handlerFunc gin.HandlerFunc) {
+	routeFor401 = handlerFunc
 }
