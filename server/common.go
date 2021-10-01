@@ -29,7 +29,7 @@ func load() *Conf {
 	return conf
 }
 
-func getConf() config.ServerConfig {
+func GetConf() config.ServerConfig {
 	if nil == conf {
 		conf = load()
 	}

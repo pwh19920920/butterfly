@@ -17,12 +17,12 @@ func StartHttpServer() {
 
 	// 初始化srv
 	srv := &http.Server{
-		Addr:    getConf().ServerAddr,
+		Addr:    GetConf().ServerAddr,
 		Handler: engine,
 	}
 
 	// log info
-	logrus.Infof("server %s start for address '%s', running in engineMode '%s'", getConf().ServiceName, getConf().ServerAddr, getConf().EngineMode)
+	logrus.Infof("server %s start for address '%s', running in engineMode '%s'", GetConf().ServiceName, GetConf().ServerAddr, GetConf().EngineMode)
 
 	// 服务启动
 	go func() {
@@ -39,7 +39,7 @@ func StartHttpServer() {
 // 初始化引擎
 func initEngine() *gin.Engine {
 	// 设置启动模式
-	gin.SetMode(getConf().EngineMode)
+	gin.SetMode(GetConf().EngineMode)
 
 	// 启动
 	engine := gin.New()
