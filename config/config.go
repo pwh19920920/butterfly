@@ -18,11 +18,11 @@ type LoggerConfig struct {
 }
 
 type ServerConfig struct {
-	EngineMode  string            `yaml:"engineMode"`
-	ServerAddr  string            `yaml:"serverAddr"`
-	ServiceName string            `yaml:"serviceName"`
-	HtmlGlobs   []string          `yaml:"htmlGlobs"`
-	Statics     map[string]string `yaml:"statics"`
+	EngineMode string            `yaml:"engineMode"`
+	ServerAddr string            `yaml:"serverAddr"`
+	ServerName string            `yaml:"serverName"`
+	HtmlGlobs  []string          `yaml:"htmlGlobs"`
+	Statics    map[string]string `yaml:"statics"`
 }
 
 func LoadConf(conf interface{}, configFilePath string) {
