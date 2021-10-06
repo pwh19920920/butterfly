@@ -31,5 +31,5 @@ func BuildResponseBadRequest(ctx *gin.Context, message string) {
 }
 
 func Response(ctx *gin.Context, code int, msg string, data interface{}) {
-	ctx.JSON(code, RespPaging{RespBody: GenericResponse(code, msg, data)})
+	ctx.JSON(code, GenericResponse(code, msg, data))
 }

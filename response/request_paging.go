@@ -8,12 +8,12 @@ type RequestPaging struct {
 	Current  int `form:"current"`  // 页码
 }
 
-// 偏移
+// Offset 偏移
 func (req *RequestPaging) Offset() int {
 	return (req.GetCurrent() - 1) * req.GetPageSize()
 }
 
-// 分页大小
+// GetPageSize 分页大小
 func (req *RequestPaging) GetPageSize() int {
 	if req.PageSize > maxPageSize {
 		return maxPageSize
@@ -25,7 +25,7 @@ func (req *RequestPaging) GetPageSize() int {
 	return req.PageSize
 }
 
-// 当前页码
+// GetCurrent 当前页码
 func (req *RequestPaging) GetCurrent() int {
 	if req.Current == 0 {
 		return 1
