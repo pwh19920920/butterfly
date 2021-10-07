@@ -14,7 +14,7 @@ func GenericResponse(code int, msg string, data interface{}) RespBody {
 }
 
 func BuildPageResponseSuccess(ctx *gin.Context, paging RequestPaging, total int64, data interface{}) {
-	Response(ctx, http.StatusOK, "OK", RespPaging{
+	ctx.JSON(http.StatusOK, RespPaging{
 		RespBody: GenericResponse(http.StatusOK, "OK", data),
 		PageSize: paging.GetPageSize(),
 		Total:    total,
