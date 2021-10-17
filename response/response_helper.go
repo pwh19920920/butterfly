@@ -30,6 +30,10 @@ func BuildResponseBadRequest(ctx *gin.Context, message string) {
 	Response(ctx, http.StatusBadRequest, message, nil)
 }
 
+func BuildResponseSysErr(ctx *gin.Context, message string) {
+	Response(ctx, http.StatusInternalServerError, message, nil)
+}
+
 func Response(ctx *gin.Context, code int, msg string, data interface{}) {
 	ctx.JSON(code, GenericResponse(code, msg, data))
 }
