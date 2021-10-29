@@ -72,7 +72,7 @@ func LoadConf(conf interface{}) {
 	viper.AddConfigPath(configPath)
 	err = viper.MergeInConfig()
 	if err != nil {
-		logrus.Warn("Loading:", envConf, "配置文件加载失败, 或者配置文件不存在, 不影响程序正常允许")
+		logrus.Warn("Loading:", envConf, " is not exist, continue run")
 	}
 
 	// 设置标记位置
