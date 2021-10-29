@@ -25,7 +25,7 @@ func parseOptions() *Options {
 	return opts
 }
 
-// 获取启动命令配置
+// GetOptions 获取启动命令配置
 func GetOptions() *Options {
 	if options == nil {
 		options = parseOptions()

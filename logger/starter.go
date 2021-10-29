@@ -12,18 +12,18 @@ type Conf struct {
 }
 
 func init() {
-	start(config.GetOptions().ConfigFilePath)
+	start()
 }
 
 // 初始化日志
-func start(configFilePath string) {
+func start() {
 	conf := new(Conf)
 
 	// 优先赋予默认值
 	viper.SetDefault("logger.dateFormat", defaultLoggerDateFormat)
 
 	// 加载配置
-	config.LoadConf(&conf, configFilePath)
+	config.LoadConf(&conf)
 
 	// 加载日志
 	initLogger(conf.Logger)

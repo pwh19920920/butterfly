@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"github.com/pwh19920920/butterfly/helper"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -25,13 +26,33 @@ type ServerConfig struct {
 	Statics    map[string]string `yaml:"statics"`
 }
 
-func LoadConf(conf interface{}, configFilePath string) {
+var initFlag = false
+
+const defaultEngineMode = "debug"
+const defaultServerAddr = ":8080"
+const defaultServerName = "butterfly"
+
+func LoadConf(conf interface{}) {
+	if initFlag {
+		// 反序列化，配置文件加载不到也要反序列化，可能会有默认配置
+		err := viper.Unmarshal(conf)
+		if err != nil {
+			logrus.Panic("Loading", reflect.TypeOf(conf), "配置文件序列化失败")
+		}
+		return
+	}
+
 	// 配置读取
-	configPath, configName, configType, err := splitViperConfig(configFilePath)
+	configPath, configName, configType, err := splitViperConfig(GetOptions().ConfigFilePath)
 	if err != nil {
 		logrus.Warn("Loading", reflect.TypeOf(conf), "配置文件不正确")
 		return
 	}
+
+	// 优先赋予默认值
+	viper.SetDefault("server.engineMode", defaultEngineMode)
+	viper.SetDefault("server.serverAddr", defaultServerAddr)
+	viper.SetDefault("server.serverName", defaultServerName)
 
 	// 设置viper配置
 	viper.SetConfigName(configName)
@@ -43,6 +64,19 @@ func LoadConf(conf interface{}, configFilePath string) {
 	if err != nil {
 		logrus.Warn("Loading", reflect.TypeOf(conf), "配置文件加载失败")
 	}
+
+	// 设置viper配置
+	envConf := fmt.Sprintf("%s-%s", configName, viper.Get("server.engineMode"))
+	viper.SetConfigName(envConf)
+	viper.SetConfigType(configType)
+	viper.AddConfigPath(configPath)
+	err = viper.MergeInConfig()
+	if err != nil {
+		logrus.Warn("Loading:", envConf, "配置文件加载失败, 或者配置文件不存在, 不影响程序正常允许")
+	}
+
+	// 设置标记位置
+	initFlag = true
 
 	// 反序列化，配置文件加载不到也要反序列化，可能会有默认配置
 	err = viper.Unmarshal(conf)
