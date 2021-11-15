@@ -61,8 +61,9 @@ func LoadConf(conf interface{}) {
 
 	// 加载配置
 	err = viper.ReadInConfig()
+	logrus.Infof("系统启动, 开始加载配置文件: %s/%s.%s", configPath, configName, configType)
 	if err != nil {
-		logrus.Warn("Loading", reflect.TypeOf(conf), "配置文件加载失败")
+		logrus.Warnf("系统启动, 加载配置文件: %s/%s.%s 失败", configPath, configName, configType)
 	}
 
 	// 设置viper配置
@@ -71,8 +72,9 @@ func LoadConf(conf interface{}) {
 	viper.SetConfigType(configType)
 	viper.AddConfigPath(configPath)
 	err = viper.MergeInConfig()
+	logrus.Infof("系统启动, 开始加载配置文件: %s/%s.%s", configPath, envConf, configType)
 	if err != nil {
-		logrus.Warn("Loading:", envConf, " is not exist, continue run")
+		logrus.Warnf("系统启动, 加载配置文件: %s/%s.%s 失败, 不影响系统正常启动", configPath, envConf, configType)
 	}
 
 	// 设置标记位置
