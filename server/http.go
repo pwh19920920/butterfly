@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/pwh19920920/butterfly/logger"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
@@ -11,6 +11,8 @@ import (
 	"syscall"
 	"time"
 )
+
+var consoleLogger = logger.ConsoleLogger
 
 func StartHttpServer() {
 	// 初始化引擎
@@ -23,17 +25,15 @@ func StartHttpServer() {
 	}
 
 	// log info
-	fmt.Printf("server %s start for address '%s', running in engineMode '%s' \n", GetConf().ServerName, GetConf().ServerAddr, GetConf().EngineMode)
-	logrus.Infof("server %s start for address '%s', running in engineMode '%s'", GetConf().ServerName, GetConf().ServerAddr, GetConf().EngineMode)
+	consoleLogger.Infof("server %s start for address '%s', running in engineMode '%s'", GetConf().ServerName, GetConf().ServerAddr, GetConf().EngineMode)
 
 	// 服务启动
 	go func() {
 		// service connections
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Printf("server listen failed, reason: %s \n", err.Error())
-			logrus.WithFields(logrus.Fields{"error": err}).Fatal("服务启动监听失败")
+			consoleLogger.WithFields(logrus.Fields{"error": err}).Fatal("服务启动监听失败")
 		} else {
-			fmt.Printf("server listen and serve success \n")
+			consoleLogger.Infof("server listen and serve success \n")
 		}
 	}()
 
@@ -67,8 +67,7 @@ func initEngine() *gin.Engine {
 func initRoute(engine *gin.Engine) {
 	for _, routeGroup := range routeGroups {
 		for _, routeInfo := range routeGroup.RouteInfos {
-			fmt.Printf("http mvc register, method:%s, uri:%s \n", routeInfo.HttpMethod.String(), routeGroup.BasePath+routeInfo.Path)
-			logrus.Infof("http mvc register, method:%s, uri:%s", routeInfo.HttpMethod.String(), routeGroup.BasePath+routeInfo.Path)
+			consoleLogger.Infof("http mvc register, method:%s, uri:%s", routeInfo.HttpMethod.String(), routeGroup.BasePath+routeInfo.Path)
 			engine.Handle(routeInfo.HttpMethod.String(), routeGroup.BasePath+routeInfo.Path, routeInfo.HandlerFunc)
 		}
 	}
@@ -99,7 +98,7 @@ func initStatic(engine *gin.Engine) {
 	}
 
 	for key, val := range statics {
-		logrus.Infof("http static register, relativePath:%s", key)
+		consoleLogger.Infof("http static register, relativePath:%s", key)
 		engine.Static(key, val)
 	}
 }
@@ -109,18 +108,15 @@ func gracefulShutdown(srv *http.Server) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	logrus.Info("服务开始优雅关闭 -- 开始")
-	fmt.Printf("服务开始优雅关闭 -- 开始 \n")
+	consoleLogger.Info("服务开始优雅关闭 -- 开始")
 
 	// 服务暂停5s
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		fmt.Printf("服务优雅关闭失败, reason: %s \n", err.Error())
-		logrus.WithFields(logrus.Fields{"error": err}).Fatal("服务优雅关闭失败")
+		consoleLogger.WithFields(logrus.Fields{"error": err}).Fatal("服务优雅关闭失败")
 		return
 	}
 
-	logrus.Info("服务开始优雅关闭 -- 结束")
-	fmt.Printf("服务开始优雅关闭 -- 结束 \n")
+	consoleLogger.Info("服务开始优雅关闭 -- 结束")
 }
