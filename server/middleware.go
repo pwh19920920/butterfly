@@ -7,6 +7,7 @@ import (
 
 var middlewareList = []gin.HandlerFunc{
 	middleware.Recover(routeFor500),
+	middleware.Trace(),
 }
 
 func RegisterMiddleware(handlers ...gin.HandlerFunc) {
