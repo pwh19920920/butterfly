@@ -1,7 +1,7 @@
 package response
 
 const maxPageSize = 100
-const minPageSize = 20
+const minPageSize = 10
 
 type RequestPaging struct {
 	PageSize int `form:"pageSize"` // 大小
