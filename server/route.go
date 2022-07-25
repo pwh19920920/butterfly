@@ -3,6 +3,8 @@ package server
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/pwh19920920/butterfly/response"
+	"reflect"
+	"runtime"
 )
 
 type HttpMethod struct {
@@ -14,7 +16,7 @@ var HttpPost = HttpMethod{"POST"}
 var HttpPut = HttpMethod{"PUT"}
 var HttpDelete = HttpMethod{"DELETE"}
 
-var routeGroups = make([]RouteGroup, 0)
+var routeGroupMaps = make(map[string]map[string]RouteInfo)
 var routeFor404 gin.HandlerFunc = func(context *gin.Context) {
 	response.Response(context, 404, "page or method not found", nil)
 }
@@ -47,11 +49,31 @@ func (method *HttpMethod) String() string {
 }
 
 func RegisterRoute(basePath string, routeInfos []RouteInfo) {
-	routeGroups = append(routeGroups, RouteGroup{basePath, routeInfos})
+	// 如果存在则不用创建map, 如果不存在则每次都要创建map
+	if _, ok := routeGroupMaps[basePath]; !ok {
+		routeGroupMaps[basePath] = make(map[string]RouteInfo)
+	}
+
+	routeInfoMap := routeGroupMaps[basePath]
+	for _, routeInfo := range routeInfos {
+		if oldRouteInfo, ok := routeInfoMap[routeInfo.HttpMethod.String()+routeInfo.Path]; ok {
+			if !GetConf().MethodOverride {
+				// 不允许覆盖则需要报错
+				consoleLogger.Panicf("不允许方法覆盖, tips： method:%s, uri:%s, code path: [%v] to [%v]", routeInfo.HttpMethod.String(), basePath+routeInfo.Path, methodCodePath(oldRouteInfo.HandlerFunc), methodCodePath(routeInfo.HandlerFunc))
+			}
+			consoleLogger.Infof("route override, method:%s, uri:%s, code path: [%v] to [%v]", routeInfo.HttpMethod.String(), basePath+routeInfo.Path, methodCodePath(oldRouteInfo.HandlerFunc), methodCodePath(routeInfo.HandlerFunc))
+		}
+		routeInfoMap[routeInfo.HttpMethod.String()+routeInfo.Path] = routeInfo
+	}
+	routeGroupMaps[basePath] = routeInfoMap
+}
+
+func methodCodePath(HandlerFunc gin.HandlerFunc) string {
+	return runtime.FuncForPC(reflect.ValueOf(HandlerFunc).Pointer()).Name()
 }
 
 func RegisterRouteGroup(routeGroup RouteGroup) {
-	routeGroups = append(routeGroups, routeGroup)
+	RegisterRoute(routeGroup.BasePath, routeGroup.RouteInfos)
 }
 
 func Register404Route(handlerFunc gin.HandlerFunc) {

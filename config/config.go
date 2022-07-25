@@ -19,11 +19,12 @@ type LoggerConfig struct {
 }
 
 type ServerConfig struct {
-	EngineMode string            `yaml:"engineMode"`
-	ServerAddr string            `yaml:"serverAddr"`
-	ServerName string            `yaml:"serverName"`
-	HtmlGlobs  []string          `yaml:"htmlGlobs"`
-	Statics    map[string]string `yaml:"statics"`
+	EngineMode     string            `yaml:"engineMode"`
+	ServerAddr     string            `yaml:"serverAddr"`
+	ServerName     string            `yaml:"serverName"`
+	HtmlGlobs      []string          `yaml:"htmlGlobs"`
+	Statics        map[string]string `yaml:"statics"`
+	MethodOverride bool              `yaml:"methodOverride"`
 }
 
 var initFlag = false

@@ -65,10 +65,10 @@ func initEngine() *gin.Engine {
 
 // 初始化路由
 func initRoute(engine *gin.Engine) {
-	for _, routeGroup := range routeGroups {
-		for _, routeInfo := range routeGroup.RouteInfos {
-			consoleLogger.Infof("http mvc register, method:%s, uri:%s", routeInfo.HttpMethod.String(), routeGroup.BasePath+routeInfo.Path)
-			engine.Handle(routeInfo.HttpMethod.String(), routeGroup.BasePath+routeInfo.Path, routeInfo.HandlerFunc)
+	for basePath, routeInfoMap := range routeGroupMaps {
+		for _, routeInfo := range routeInfoMap {
+			consoleLogger.Infof("http mvc register, method:%s, uri:%s", routeInfo.HttpMethod.String(), basePath+routeInfo.Path)
+			engine.Handle(routeInfo.HttpMethod.String(), basePath+routeInfo.Path, routeInfo.HandlerFunc)
 		}
 	}
 
