@@ -34,7 +34,7 @@ func Request() gin.HandlerFunc {
 		// 格式化
 		requestBody := make(map[string]interface{}, 0)
 		var err error = nil
-		if data != nil {
+		if data != nil && len(data) != 0 {
 			context.Request.Body = ioutil.NopCloser(bytes.NewBuffer(data))
 			err = json.Unmarshal(data, &requestBody)
 		}
