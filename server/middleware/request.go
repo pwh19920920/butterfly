@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pwh19920920/butterfly/logger"
@@ -29,7 +30,14 @@ func Request() gin.HandlerFunc {
 		writer := &responseBodyWriter{body: &bytes.Buffer{}, ResponseWriter: context.Writer}
 		context.Writer = writer
 		data, _ := context.GetRawData()
-		context.Request.Body = ioutil.NopCloser(bytes.NewBuffer(data))
+
+		// 格式化
+		requestBody := make(map[string]interface{}, 0)
+		var err error = nil
+		if data != nil {
+			context.Request.Body = ioutil.NopCloser(bytes.NewBuffer(data))
+			err = json.Unmarshal(data, &requestBody)
+		}
 
 		// 请求方式
 		reqMethod := context.Request.Method
@@ -42,10 +50,6 @@ func Request() gin.HandlerFunc {
 
 		// 请求IP
 		requestHost := context.Request.Host
-
-		// 格式化
-		requestBody := make(map[string]interface{}, 0)
-		err := context.ShouldBindJSON(&requestBody)
 
 		logger.InfoEntry(context, logrus.WithFields(logrus.Fields{
 			"requestHost":   requestHost,
