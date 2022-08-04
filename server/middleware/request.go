@@ -8,6 +8,7 @@ import (
 	"github.com/pwh19920920/butterfly/logger"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
+	"strings"
 	"time"
 )
 
@@ -21,6 +22,8 @@ func (r responseBodyWriter) Write(b []byte) (int, error) {
 	return r.ResponseWriter.Write(b)
 }
 
+const contentType = "application/json"
+
 func Request() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		// 开始时间
@@ -32,11 +35,20 @@ func Request() gin.HandlerFunc {
 		data, _ := context.GetRawData()
 
 		// 格式化
-		requestBody := make(map[string]interface{}, 0)
+		requestBodyData := make(map[string]interface{}, 0)
+		var requestBody interface{}
 		var err error = nil
 		if data != nil && len(data) != 0 {
 			context.Request.Body = ioutil.NopCloser(bytes.NewBuffer(data))
-			err = json.Unmarshal(data, &requestBody)
+
+			// 为json类型才需要处理, 如果出错, data就塞成rawData
+			if strings.Contains(context.ContentType(), contentType) {
+				if err = json.Unmarshal(data, &requestBodyData); err != nil {
+					requestBody = requestBodyData
+				}
+			} else {
+				requestBody = string(data)
+			}
 		}
 
 		// 请求方式
