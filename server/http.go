@@ -44,7 +44,7 @@ func StartHttpServer() {
 // 初始化引擎
 func initEngine() *gin.Engine {
 	// 设置启动模式
-	gin.SetMode(GetConf().EngineMode)
+	gin.SetMode(GetConf().GetEngineMode())
 
 	// 启动
 	engine := gin.New()

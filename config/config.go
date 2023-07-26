@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/pwh19920920/butterfly/helper"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -25,6 +26,19 @@ type ServerConfig struct {
 	HtmlGlobs      []string          `yaml:"htmlGlobs"`
 	Statics        map[string]string `yaml:"statics"`
 	MethodOverride bool              `yaml:"methodOverride"`
+}
+
+func (conf ServerConfig) GetEngineMode() string {
+	switch conf.EngineMode {
+	case gin.DebugMode, "":
+		return gin.DebugMode
+	case gin.ReleaseMode:
+		return gin.ReleaseMode
+	case gin.TestMode:
+		return gin.TestMode
+	default:
+		return gin.ReleaseMode
+	}
 }
 
 var initFlag = false
