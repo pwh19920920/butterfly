@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/pwh19920920/butterfly/helper"
+	"github.com/pwh19920920/butterfly/pkg/helper"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"reflect"

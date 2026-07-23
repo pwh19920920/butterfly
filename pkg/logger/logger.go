@@ -3,12 +3,13 @@ package logger
 import (
 	"bufio"
 	"fmt"
-	"github.com/lestrrat-go/file-rotatelogs"
-	"github.com/pwh19920920/butterfly/config"
-	"github.com/rifflock/lfshook"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"time"
+
+	"github.com/lestrrat-go/file-rotatelogs"
+	"github.com/pwh19920920/butterfly/pkg/config"
+	"github.com/rifflock/lfshook"
+	log "github.com/sirupsen/logrus"
 )
 
 const infoLog string = "INFO"

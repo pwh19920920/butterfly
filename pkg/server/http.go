@@ -2,14 +2,16 @@ package server
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	"github.com/pwh19920920/butterfly/logger"
-	"github.com/sirupsen/logrus"
+	"errors"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/pwh19920920/butterfly/pkg/logger"
+	"github.com/sirupsen/logrus"
 )
 
 var consoleLogger = logger.ConsoleLogger
@@ -30,7 +32,7 @@ func StartHttpServer() {
 	// 服务启动
 	go func() {
 		// service connections
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			consoleLogger.WithFields(logrus.Fields{"error": err}).Fatal("服务启动监听失败")
 		} else {
 			consoleLogger.Infof("server listen and serve success \n")

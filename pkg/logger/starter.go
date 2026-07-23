@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/pwh19920920/butterfly/config"
+	"github.com/pwh19920920/butterfly/pkg/config"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )

@@ -3,7 +3,7 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-basic/uuid"
-	"github.com/pwh19920920/butterfly/common"
+	"github.com/pwh19920920/butterfly/pkg/common"
 )
 
 func Trace() gin.HandlerFunc {

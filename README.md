@@ -1,117 +1,165 @@
-# butterfly 快速开发框架
+# butterfly
 
-butterfly是一套简单易用的Go语言业务框架，整体逻辑设计简洁，支持HTTP服务、任务调度等常用业务场景模式。
-# Features
-1. HTTP服务：基于gin进行模块化设计，简单易用、核心足够轻量；
-2. Config: 采用yaml语义化的配置文件格式，简单易用；
-3. Logger: 基于logrus进行封装；
-4. Request and Response：定义输入和输出数据实体格式；
-5. Command Config: 支持命令启动配置、命令覆盖；
+一套简单易用的 Go 语言业务框架，基于 [gin](https://github.com/gin-gonic/gin) 封装 HTTP 服务，开箱即用、核心足够轻量。
 
-# Quick start
+## Features
 
-#### 1. 基本框架
+- **HTTP 服务**：基于 gin 模块化封装，内置路由注册、中间件链与优雅关闭。
+- **Config**：yaml 配置，支持命令行覆盖、按运行模式合并环境配置。
+- **Logger**：基于 logrus 封装，按级别分文件、按天切割、带 traceId 透传。
+- **Request / Response**：统一的请求分页与响应体结构。
+- **Middleware**：内置 trace、请求日志、recover 中间件，可追加自定义中间件。
+
+## 项目结构
 
 ```
+butterfly/
+├── cmd/
+│   └── example/                 # 示例应用（package main）
+│       └── main.go
+├── configs/
+│   └── config.yml               # 默认配置
+├── pkg/                         # 对外公共代码
+│   ├── server/                  # HTTP 服务、路由、中间件
+│   │   └── middleware/          # trace / request / recover
+│   ├── logger/                  # 日志封装
+│   ├── response/                # 请求分页与响应体
+│   ├── config/                  # 配置加载与选项
+│   ├── common/                  # 公共常量
+│   └── helper/                  # 工具函数
+├── go.mod
+└── go.sum
+```
+
+所有包位于 `github.com/pwh19920920/butterfly/pkg` 下。服务入口为 `server.StartHttpServer()`。
+
+## Quick start
+
+### 1. 启动服务
+
+```go
 package main
 
-import "github.com/pwh19920920/butterfly"
+import "github.com/pwh19920920/butterfly/pkg/server"
 
 func main() {
-    butterfly.Run()
+    server.StartHttpServer()
 }
 ```
 
-#### 2. 编写控制层
-```
+默认从 `configs/config.yml` 加载配置（可用 `--configFilePath` 指定其他路径）。
+
+### 2. 编写 handler
+
+```go
 package test
 
-import "github.com/gin-gonic/gin"
-import "github.com/pwh19920920/butterfly/response"
-import "github.com/pwh19920920/butterfly/server"
+import (
+    "github.com/gin-gonic/gin"
+    "github.com/pwh19920920/butterfly/pkg/response"
+)
 
 func test(context *gin.Context) {
-    response.BuildResponseBadRequest(context, "test")
+    response.BuildResponseSuccess(context, "ok")
 }
 ```
 
-#### 3. 注册进butterfly
+### 3. 注册路由
 
-```
-方式一、匿名引用导入
-// 在test的init中注册路由
+```go
+package test
+
+import "github.com/pwh19920920/butterfly/pkg/server"
+
 func init() {
-    var route []server.RouteInfo
-    route = append(route, server.RouteInfo{HttpMethod: server.HttpGet, Path: "/", HandlerFunc: test})
-    server.RegisterRoute("/test", route)
-}
-
-// main包匿名引入生效
-import _ "butterfly-web/src/app/test" // 建议采用
-
-
-方式二、main包初始方法导入
-func init() {
-    var route []server.RouteInfo
-    route = append(route, server.RouteInfo{HttpMethod: server.HttpGet, Path: "/", HandlerFunc: test})
-    server.RegisterRoute("/test", route)
+    route := []server.RouteInfo{
+        {HttpMethod: server.HttpGet, Path: "/test", HandlerFunc: test},
+    }
+    server.RegisterRoute("/api", route)
 }
 ```
 
-基本的demo可以参考: [https://github.com/pwh19920920/butterfly-demo](https://github.com/pwh19920920/butterfly-demo)
+在 main 包匿名引入即可生效：
 
-# Advance
-#### 1. 注册404，500事件路由
+```go
+package main
+
+import (
+    _ "your-app/src/app/test"
+
+    "github.com/pwh19920920/butterfly/pkg/server"
+)
+
+func main() {
+    server.StartHttpServer()
+}
 ```
-// mian包初始化执行
+
+可用的 HTTP 方法常量：`HttpGet`、`HttpPost`、`HttpPut`、`HttpDelete`。
+
+完整 demo 参考：[butterfly-demo](https://github.com/pwh19920920/butterfly-demo)
+
+## Advance
+
+### 注册错误处理路由
+
+```go
 func init() {
-    server.Register404Route(func(context *gin.Context) {
-        // 此处可以执行gin的正常输出
-        response.Response(context, 404, "404", nil)
+    server.Register404Route(func(c *gin.Context) {
+        response.Response(c, 404, "404", nil)
     })
-
-    server.Register500Route(func(context *gin.Context) {
-        // 此处可以执行gin的正常输出
-        response.Response(context, 500, "500", nil)
-    })
-}
-```
-
-#### 2. 注册middleware
-```
-// mian包初始化执行
-func init() {
-    server.RegisterMiddleware(func(context *gin.Context) {
-        // TODO 中间价逻辑
-        // ...
-        
-        context.Next()
+    server.Register500Route(func(c *gin.Context) {
+        response.Response(c, 500, "500", nil)
     })
 }
 ```
 
-# Config
-#### 1. 命令参数
-1. --configFilePath: 外部配置文件地址，默认为：conf/application.yml
-2. --server.engineMode: 引擎模式：debug，release，test
-3. --server.serverAddr: 启动地址：格式为ip地址:端口, 地址无限制则为:端口
+另有 `Register403Route`、`Register401Route` 注册 403、401 处理器。
 
-#### 2. 配置参数
+### 注册中间件
+
+内置的 trace、请求日志、recover 中间件已默认启用，可用 `RegisterMiddleware` 追加自定义中间件：
+
+```go
+func init() {
+    server.RegisterMiddleware(func(c *gin.Context) {
+        // 自定义逻辑
+        c.Next()
+    })
+}
+```
+
+## Config
+
+### 命令参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `--configFilePath` | 配置文件地址，默认 `configs/config.yml` |
+| `--server.engineMode` | 引擎模式：debug、release、test |
+| `--server.serverAddr` | 启动地址，格式 `ip:端口`，仅端口则为 `:端口` |
+
+### 配置项
+
 ```yaml
-
 logger:
-  level: 日志等级，info, warn, debug, trace, error
-  logPath: 日志目录，默认为logs目录
-  fileName: 日志名称，默认为server
-  dateFormat: 默认为2006-01-02 15:04:05.999999999
-  closeConsoleOut: 关闭控制台输出，默认false
-  
+  level: 日志等级，info / warn / debug / trace / error
+  logPath: 日志目录，默认 logs
+  fileName: 日志文件名，默认 server
+  dateFormat: 默认 2006-01-02 15:04:05.999999999
+  closeConsoleOut: 关闭控制台输出，默认 false
+
 server:
-  engineMode: 引擎模式，默认为debug，可选项debug，release，test
-  serverAddr: 启动地址：格式为ip地址:端口, 地址无限制则为:端口
-  serviceName: 服务名称
-  htmlGlobs: html页面地址列表
+  engineMode: 引擎模式，默认 debug，可选 debug / release / test
+  serverAddr: 启动地址
+  serverName: 服务名称
+  htmlGlobs: html 页面地址列表
   statics: 静态目录映射
+  methodOverride: 是否允许路由方法覆盖，默认 false
 ```
-#### 3. 配置优先级
+
+加载时除主配置外，还会尝试合并 `config-<engineMode>.yml`（如 `config-release.yml`），用于按运行模式覆盖配置；该文件缺失不影响启动。
+
+### 配置优先级
+
 > 命令参数 > 配置参数 > 默认值

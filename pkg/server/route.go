@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/pwh19920920/butterfly/response"
+	"github.com/pwh19920920/butterfly/pkg/response"
 	"reflect"
 	"runtime"
 )

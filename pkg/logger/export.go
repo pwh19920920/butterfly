@@ -2,7 +2,7 @@ package logger
 
 import (
 	"context"
-	"github.com/pwh19920920/butterfly/common"
+	"github.com/pwh19920920/butterfly/pkg/common"
 	"github.com/sirupsen/logrus"
 )
 

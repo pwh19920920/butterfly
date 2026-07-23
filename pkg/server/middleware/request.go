@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/pwh19920920/butterfly/logger"
-	"github.com/sirupsen/logrus"
-	"io/ioutil"
+	"io"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/pwh19920920/butterfly/pkg/logger"
+	"github.com/sirupsen/logrus"
 )
 
 type responseBodyWriter struct {
@@ -39,7 +40,7 @@ func Request() gin.HandlerFunc {
 		var requestBody interface{}
 		var err error = nil
 		if data != nil && len(data) != 0 {
-			context.Request.Body = ioutil.NopCloser(bytes.NewBuffer(data))
+			context.Request.Body = io.NopCloser(bytes.NewBuffer(data))
 
 			// 为json类型才需要处理, 如果出错, data就塞成rawData
 			if strings.Contains(context.ContentType(), contentType) {

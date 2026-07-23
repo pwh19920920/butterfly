@@ -7,7 +7,7 @@ import (
 
 var options *Options
 
-const defaultConfigPath string = "conf/application.yml"
+const defaultConfigPath string = "configs/config.yml"
 
 type Options struct {
 	ConfigFilePath string

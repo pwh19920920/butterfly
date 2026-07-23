@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/pwh19920920/butterfly/server/middleware"
+	"github.com/pwh19920920/butterfly/pkg/server/middleware"
 )
 
 var middlewareList = []gin.HandlerFunc{

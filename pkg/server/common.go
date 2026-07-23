@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/pwh19920920/butterfly/config"
+	"github.com/pwh19920920/butterfly/pkg/config"
 )
 
 type Conf struct {
